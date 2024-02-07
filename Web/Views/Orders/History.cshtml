@@ -1,0 +1,65 @@
+﻿@model IEnumerable<Lib.Models.OrderViewModel>
+
+@{
+    ViewData["Title"] = "History";
+}
+
+<h1>Recent purchases</h1>
+
+<hr />
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TimeOfOrder)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Address)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Products)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TimeOfOrder)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Price) $
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Address)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserId)
+            </td>
+                <td>
+                    @foreach (var product in item.Products)
+                    {
+                              <p>@product.Id |
+                                @product.Name |
+                                @product.Price |
+                               @product.Quantity </P>
+                               <br />
+                    }
+                </td>
+        </tr>
+}
+    </tbody>
+</table>

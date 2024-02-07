@@ -1,0 +1,12 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+@model Lib.Models.ProductList
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <h3>In order to buy a product please </h3>
+
+    <button><a asp-action="Registration" asp-controller="Authentification">Register</a></button>
+    <button><a asp-action="SignIn" asp-controller="Authentification">Sign In</a></button>
+</div>

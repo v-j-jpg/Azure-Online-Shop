@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<StartupServicesManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/2011/01/fabric">
+  <Parameters>
+    <Parameter Name="Orders_InstanceCount" DefaultValue="-1" />
+    <Parameter Name="Payment_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="Payment_PartitionCount" DefaultValue="1" />
+    <Parameter Name="Payment_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="Cart_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="Cart_PartitionCount" DefaultValue="1" />
+    <Parameter Name="Cart_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="Users_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="Users_PartitionCount" DefaultValue="1" />
+    <Parameter Name="Users_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="ProductCatalog_InstanceCount" DefaultValue="-1" />
+    <Parameter Name="Web_InstanceCount" DefaultValue="-1" />
+    <Parameter Name="Notifications_InstanceCount" DefaultValue="-1" />
+  </Parameters>
+  <Services>
+    <!-- The section below creates instances of service types, when an instance of this 
+         application type is created. You can also create one or more instances of service type using the 
+         ServiceFabric PowerShell module.
+
+         The attribute ServiceTypeName below must match the name defined in the imported ServiceManifest.xml file. -->
+    <Service Name="Orders" ServicePackageActivationMode="ExclusiveProcess">
+      <StatelessService ServiceTypeName="OrdersType" InstanceCount="[Orders_InstanceCount]">
+        <SingletonPartition />
+      </StatelessService>
+    </Service>
+    <Service Name="Payment" ServicePackageActivationMode="ExclusiveProcess">
+      <StatefulService ServiceTypeName="PaymentType" TargetReplicaSetSize="[Payment_TargetReplicaSetSize]" MinReplicaSetSize="[Payment_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[Payment_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+      </StatefulService>
+    </Service>
+    <Service Name="Cart" ServicePackageActivationMode="ExclusiveProcess">
+      <StatefulService ServiceTypeName="CartType" TargetReplicaSetSize="[Cart_TargetReplicaSetSize]" MinReplicaSetSize="[Cart_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[Cart_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+      </StatefulService>
+    </Service>
+    <Service Name="Users" ServicePackageActivationMode="ExclusiveProcess">
+      <StatefulService ServiceTypeName="UsersType" TargetReplicaSetSize="[Users_TargetReplicaSetSize]" MinReplicaSetSize="[Users_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[Users_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+      </StatefulService>
+    </Service>
+    <Service Name="ProductCatalog" ServicePackageActivationMode="ExclusiveProcess">
+      <StatelessService ServiceTypeName="ProductCatalogType" InstanceCount="[ProductCatalog_InstanceCount]">
+        <SingletonPartition />
+      </StatelessService>
+    </Service>
+    <Service Name="Web" ServicePackageActivationMode="ExclusiveProcess">
+      <StatelessService ServiceTypeName="WebType" InstanceCount="[Web_InstanceCount]">
+        <SingletonPartition />
+      </StatelessService>
+    </Service>
+    <Service Name="Notifications" ServicePackageActivationMode="ExclusiveProcess">
+      <StatelessService ServiceTypeName="NotificationsType" InstanceCount="[Notifications_InstanceCount]">
+        <SingletonPartition />
+      </StatelessService>
+    </Service>
+  </Services>
+</StartupServicesManifest>

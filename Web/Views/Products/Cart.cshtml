@@ -1,0 +1,143 @@
+﻿@model IEnumerable<Lib.Models.Product>
+
+@{
+    ViewData["Title"] = "Cart";
+}
+
+<h1>Cart</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Category)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Quantity)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Category)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)$
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new {  id = item.Id })
+                    @Html.ActionLink("Delete", "Edit", new {  id = item.Id })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div>
+    @if (ViewBag.TotalPrice != 0)
+    {
+        <h3>Total Price: </h3>
+        <br />
+        <h6>@ViewBag.TotalPrice</h6>
+    }
+    <br />
+    <a asp-action="Catalog">Back to Catalog</a>
+    <br />
+    <hr />
+    <h1>Payment Info</h1>
+    <hr />
+
+    @using (Html.BeginForm("OnDelivery", "Checkout"))
+    {
+        <input type="text" id="address" name="address" required placeholder="Enter delivery address...." />
+        <br />
+        <div>Payment methods:</div>
+        <br/>
+        <button type="submit"> Pay on Delivery</button>
+    }
+    <br />
+   @* <div class="row">
+        <div class="col-sm card shadow border-0 p-3">
+            <div class="col-12">
+                <div class="card-body border p-0">
+                    <p>
+                        <a class="btn btn-outline-secondary p-2 w-100 h-100 d-flex align-items-center justify-content-between"
+                           data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="true"
+                           aria-controls="collapseExample">
+                            <span class="fw-bold">Credit Card</span>
+                            <span class="card-group">
+                                <i class="fa-brands fa-cc-apple-pay fa-2x p-1"></i>
+                                <i class="fa-brands fa-cc-visa fa-2x p-1"></i>
+                                <i class="fa-brands fa-cc-mastercard fa-2x p-1"></i>
+                            </span>
+                        </a>
+                    </p>
+                    <div class="collapse show p-3 pt-0" id="collapseExample">
+                        <div class="row">
+                            <div class="col">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-group form__div">
+                                            <input asp-for="BankCardNumber" maxlength="16" value="" type="number" class="form-control mb-1" placeholder="CARD NUMBER" />
+                                            <span asp-validation-for="BankCardNumber" class="text-danger"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-6">
+                                        <div class="form__div">
+                                            <input asp-for="ExpirationDate" pattern="^((0[1-9])|(1[0-2]))[\/\.\-]*((0[8-9])|(1[1-9]))$" type="text" class="form-control col-2" placeholder="MM/YY">
+                                            <span asp-validation-for="ExpirationDate" class="text-danger"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-6">
+                                        <div class="form__div">
+                                            <input asp-for="CVV" type="password" class="form-control" placeholder="CVV">
+                                            <span asp-validation-for="CVV" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form__div">
+                                            <input asp-for="NameOnCard" type="text" class="form-control mt-1" placeholder="NAME ON THE CARD">
+                                            <span asp-validation-for="NameOnCard" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+    <button><a asp-action="PayPal" asp-controller="Checkout">Pay Pal</a></button>
+    <br />
+    <hr />
+</div>
