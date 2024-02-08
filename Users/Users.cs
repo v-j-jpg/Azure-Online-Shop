@@ -256,5 +256,14 @@ namespace Users
             return true;
         }
 
+        public async Task LogOut()
+        {
+            userDictionary = await StateManager.GetOrAddAsync<IReliableDictionary<string, User>>("users");
+
+            using (var transaction = StateManager.CreateTransaction())
+            {
+                await userDictionary.ClearAsync();
+            }
+        }
     }
 }

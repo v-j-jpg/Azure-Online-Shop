@@ -12,6 +12,7 @@ using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 using Microsoft.ServiceFabric.Data;
 using Web.Models;
+using Web.Services;
 
 namespace Web
 {
@@ -57,6 +58,7 @@ namespace Web
                                 builder.Configuration["PayPalOptions:Mode"]
                             )
                         );
+                        builder.Services.AddTransient<IQueueService, QueueService>();
 
                         var app = builder.Build();
                         

@@ -28,7 +28,7 @@ namespace Cart
         public IReliableDictionary<string, Product>? basketDictionary;
         TableServiceClient tableServiceClient;
         TableClient tableBasket, tableProducts;
-        
+
 
         public Cart(StatefulServiceContext context)
             : base(context)
@@ -53,21 +53,21 @@ namespace Cart
                 if (newProduct != null)
                 {
                     basketDictionary = await StateManager.GetOrAddAsync<IReliableDictionary<string, Product>>("basket");
-                
-                  // Create a new Transaction object for this partition
-                using (var tx = StateManager.CreateTransaction())
-                {
-                    // AddAsync takes key's write lock; if >4 secs, TimeoutException
-                    // Key & value put in temp dictionary (read your own writes),
-                    // serialized, redo/undo record is logged & sent to secondary replicas
-                    await basketDictionary!.AddOrUpdateAsync(tx, newProduct.Id!, newProduct, (k, v) => v); ;
 
-                    //AddAsync doesn't work if u reload the page
+                    // Create a new Transaction object for this partition
+                    using (var tx = StateManager.CreateTransaction())
+                    {
+                        // AddAsync takes key's write lock; if >4 secs, TimeoutException
+                        // Key & value put in temp dictionary (read your own writes),
+                        // serialized, redo/undo record is logged & sent to secondary replicas
+                        await basketDictionary!.AddOrUpdateAsync(tx, newProduct.Id!, newProduct, (k, v) => v); ;
 
-                    // CommitAsync sends Commit record to log & secondary replicas
-                    // After quorum responds, all locks released
-                    await tx.CommitAsync();
-                }
+                        //AddAsync doesn't work if u reload the page
+
+                        // CommitAsync sends Commit record to log & secondary replicas
+                        // After quorum responds, all locks released
+                        await tx.CommitAsync();
+                    }
                 }
             }
             catch (Exception ex)
@@ -88,14 +88,16 @@ namespace Cart
 
                     using (var tx = StateManager.CreateTransaction())
                     {
-                        
+
                         await basketDictionary!.TryRemoveAsync(tx, newProduct.Id!); ;
 
                         await tx.CommitAsync();
                     }
+                    await DeleteBasketItemFromStorage(newProduct);
                 }
 
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
 
             }
@@ -108,7 +110,7 @@ namespace Cart
             if (qEntity != null)
             {
                 Product product = new Product(productId, qEntity.Name, qEntity.Description, qEntity.Category, qEntity.Price, 1); //Adds only one product to the basket
-                
+
 
                 return product;
             }
@@ -177,7 +179,7 @@ namespace Cart
                     // discarded, and nothing is saved to the secondary replicas.
                     await tx.CommitAsync();
                 }
-
+                await SaveBasketToStorage();
                 await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
             }
         }
@@ -209,7 +211,7 @@ namespace Cart
                 if (newProduct != null)
                 {
                     basketDictionary = await StateManager.GetOrAddAsync<IReliableDictionary<string, Product>>("basket");
-                    
+
                     // Create a new Transaction object for this partition
                     using (var tx = StateManager.CreateTransaction())
                     {
@@ -219,9 +221,9 @@ namespace Cart
 
                         Product temp = (await basketDictionary.TryGetValueAsync(tx, newProduct.Id)).Value; //Get the old value
 
-                        newProduct.Price = baseProduct.Price * newProduct.Quantity; 
-       
-                        await basketDictionary!.TryUpdateAsync(tx, newProduct.Id!, newProduct, temp );
+                        newProduct.Price = baseProduct.Price * newProduct.Quantity;
+
+                        await basketDictionary!.TryUpdateAsync(tx, newProduct.Id!, newProduct, temp);
 
                         //AddAsync doesn't work if u reload the page
 
@@ -235,6 +237,50 @@ namespace Cart
             {
                 throw;
             }
+        }
+
+        public async Task RemoveAllProductsDictionary()
+        {
+            basketDictionary = await StateManager.GetOrAddAsync<IReliableDictionary<string, Product>>("basket");
+
+            using (var transaction = StateManager.CreateTransaction())
+            {
+                await basketDictionary.ClearAsync();
+            }
+        }
+
+        public async Task SaveBasketToStorage()
+        {
+
+            basketDictionary = await StateManager.GetOrAddAsync<IReliableDictionary<string, Product>>("basket");
+
+            var basket = new List<string>();
+
+            using (var transaction = StateManager.CreateTransaction())
+            {
+                var enumerator = (await basketDictionary.CreateEnumerableAsync(transaction)).GetAsyncEnumerator();
+
+                //Loop through the whole basket dictionary and update the storage
+                while (await enumerator.MoveNextAsync(CancellationToken.None))
+                {
+                    Product product = enumerator.Current.Value;
+                    TableProduct newProductInBasket = new TableProduct()
+                    {
+                        Id = product.Id,
+                        RowKey = product.Id,
+                        PartitionKey = product.Category,
+                        Price = product.Price,
+                        Description = product.Description,
+                        Quantity = product.Quantity
+                    };
+                    await tableBasket.UpsertEntityAsync(newProductInBasket, TableUpdateMode.Merge);
+                }
+            }
+        }
+
+        public async Task DeleteBasketItemFromStorage(Product basketItem)
+        {
+           tableBasket.DeleteEntity(basketItem.Category, basketItem.Category);
         }
     }
 }

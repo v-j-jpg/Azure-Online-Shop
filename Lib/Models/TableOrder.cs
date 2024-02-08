@@ -18,6 +18,7 @@ namespace Lib.Models
         private string userId;
         private string address;
         private string paymentMethod;
+        private bool isHistory;
         public TableOrder()
         {
         }
@@ -42,5 +43,6 @@ namespace Lib.Models
         public string UserId { get => userId; set => userId = value; }
         public string Address1 { get => address; set => address = value; }
         public string PaymentMethod { get => paymentMethod; set => paymentMethod = value; }
+        public bool IsHistory { get => isHistory; set => isHistory = value; }
     }
 }

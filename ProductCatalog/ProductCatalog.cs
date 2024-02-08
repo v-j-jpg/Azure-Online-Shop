@@ -110,6 +110,31 @@ namespace ProductCatalog
 
         }
 
+        public async Task RemoveBoughtProductsFromStorage(List<string> products)
+        {
+            List<TableProduct> boughtProducts = new List<TableProduct>();
+            products.ForEach(product => boughtProducts.Add(JsonConvert.DeserializeObject<TableProduct>(product)));
+
+            Pageable<TableProduct> queryResultsFilter = tableClient.Query<TableProduct>(filter: $"PartitionKey eq 'TableProducts'"); //get all products
+
+            if (queryResultsFilter != null)
+            {
+                foreach (TableProduct qEntity in queryResultsFilter)
+                {
+                    foreach (TableProduct product in boughtProducts)
+                    {
+                        if(product.Id == qEntity.Id)
+                        {
+                            qEntity.Quantity -= product.Quantity;
+                            await tableClient.UpsertEntityAsync(qEntity, TableUpdateMode.Merge);
+                        }
+                    }
+                }
+
+
+            }
+        }
+
 
 
         /// <summary>

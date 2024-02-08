@@ -16,7 +16,6 @@ namespace Web.Controllers
                 ICatalog proxy = ServiceProxy.Create<ICatalog>(new Uri("fabric:/Shop/ProductCatalog"));
                 var products = new List<Product>();
 
-                //await proxy.AddProductsToStorage(new Product("6", "Test product","test test","Pants", 44.50, 80));
 
                 List<string> productsJson = await proxy.GetAllProducts();
 
@@ -30,6 +29,7 @@ namespace Web.Controllers
             }
 
         }
+       
         public async Task<IActionResult> Cart()
         {
             try
@@ -37,13 +37,13 @@ namespace Web.Controllers
                 ICart proxy = ServiceProxy.Create<ICart>(new Uri("fabric:/Shop/Cart"), new ServicePartitionKey(1));
                 var basket = new List<Product>();
 
-                // await proxy.AddProductsToStorage(new Product());
 
                 List<string> productsJson = await proxy.GetBasketProducts();
 
                 productsJson.ForEach(x => basket.Add(JsonConvert.DeserializeObject<Product>(x)!));
                 double totalPrice = 0;
-                basket.ForEach(product => totalPrice += product.Price);
+                if(basket.Count > 0) { basket.ForEach(product => totalPrice += product.Price); }
+                
 
                 ViewBag.TotalPrice = totalPrice;
 

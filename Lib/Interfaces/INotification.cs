@@ -9,14 +9,12 @@ using System.Threading.Tasks;
 namespace Lib.Interfaces
 {
     [ServiceContract]
-    public interface IPayment : IService
+    public interface INotification : IService
     {
         [OperationContract]
-        Task<List<string>> GetOrdersHistory();
-        [OperationContract]
-        Task SaveOrderToDictionary(string order);
+        Task PublishMessage(string serviceBusMessage, string queueName);
 
         [OperationContract]
-        Task<List<string>> GetOrderMessages();
+        Task<string?> ReceiveMessage(string queueName);
     }
 }

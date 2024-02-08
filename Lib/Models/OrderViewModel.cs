@@ -23,6 +23,8 @@ namespace Lib.Models
         private double price;
         [DataMember]
         private string userId;
+        [DataMember]
+        private bool isHistory;
 
         public OrderViewModel()
         {
@@ -30,7 +32,7 @@ namespace Lib.Models
         }
 
 
-            public OrderViewModel(string id, DateTime timeOfOrder, double price, string userId,string address, List<Product> products)
+            public OrderViewModel(string id, DateTime timeOfOrder, double price, string userId, string address, List<Product> products, bool isHistory)
         {
             this.id = id;
             this.timeOfOrder = timeOfOrder;
@@ -38,6 +40,7 @@ namespace Lib.Models
             this.userId = userId;
             this.products = products;
             this.address = address;
+            this.IsHistory = isHistory;
         }
 
         //public Order(string id)
@@ -52,5 +55,6 @@ namespace Lib.Models
         public double Price { get => price; set => price = value; }
         public string Address { get => address; set => address = value; }
         public string UserId { get => userId; set => userId = value; }
+        public bool IsHistory { get => isHistory; set => isHistory = value; }
     }
 }

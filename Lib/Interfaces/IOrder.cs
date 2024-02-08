@@ -15,6 +15,6 @@ namespace Lib.Interfaces
         [OperationContract]
         Task<bool> AddOrderToStorage(Order order);
         [OperationContract]
-        Task<List<string>> GetAllOrdersFromStorage(string order);
+        Task<List<string>> GetAllOrdersFromStorage();
     }
 }

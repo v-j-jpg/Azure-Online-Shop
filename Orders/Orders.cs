@@ -48,7 +48,8 @@ namespace Orders
                         Price = order.Price,
                         TimeOfOrder = DateTime.UtcNow,
                         Timestamp = DateTimeOffset.UtcNow,
-                        Products = string.Join(",", order.Products.ToArray())
+                        Products = string.Join(",", order.Products.ToArray()),
+                        IsHistory = false
                     };
 
                     // Add new item to server-side table
@@ -65,7 +66,7 @@ namespace Orders
            
         }
 
-        public async Task<List<string>> GetAllOrdersFromStorage(string order)
+        public async Task<List<string>> GetAllOrdersFromStorage()
         {
             Pageable<TableOrder> queryResultsFilter = tableOrders.Query<TableOrder>(filter: $"PartitionKey eq 'TableOrders'");
             var orders = new List<string>();

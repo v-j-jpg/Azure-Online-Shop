@@ -99,9 +99,10 @@ namespace Web.Controllers
 
         public async Task<IActionResult> LogOut()
         {
-            //Edit the user in the database and dictionary
+            
             IAuth proxy = ServiceProxy.Create<IAuth>(new Uri("fabric:/Shop/Users"), new ServicePartitionKey(1));
-
+            
+            await proxy.LogOut();
 
             return RedirectToAction("Index", "Home");
         }

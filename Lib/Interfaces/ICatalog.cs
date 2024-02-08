@@ -23,5 +23,8 @@ namespace Lib.Interfaces
 
         [OperationContract]
         Task<List<string>> GetProductByFilter(string query);
+
+        [OperationContract]
+        Task RemoveBoughtProductsFromStorage(List<string> products);
     }
 }

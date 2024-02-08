@@ -35,5 +35,8 @@ namespace Lib.Interfaces
         [OperationContract]
         Task<string> GetUserById(string Id);
 
+        [OperationContract]
+        Task LogOut();
+
     }
 }
