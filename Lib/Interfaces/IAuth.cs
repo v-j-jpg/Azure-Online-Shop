@@ -20,7 +20,7 @@ namespace Lib.Interfaces
         Task<List<string>> ListClientsFromTheDicitonary();
 
         [OperationContract]
-        Task<string> GetUser();
+        Task<string> GetActiveUser();
 
         [OperationContract]
        Task<string> CheckUsersCredential(string user);

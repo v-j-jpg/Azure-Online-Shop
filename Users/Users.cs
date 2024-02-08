@@ -178,19 +178,26 @@ namespace Users
             return true;
         }
 
-        public async  Task<string> GetUser()
+        public async  Task<string> GetActiveUser()
+            //Active user should be on top 
         {
-            userDictionary = await StateManager.GetOrAddAsync<IReliableDictionary<string, User>>("users");
-
             try
             {
+                var clients = new List<string>();
+                userDictionary = await StateManager.GetOrAddAsync<IReliableDictionary<string, User>>("users");
+
                 using (var tx = StateManager.CreateTransaction())
                 {
-                    var customer = await userDictionary!.TryGetValueAsync(tx, "0"); //Active user will always be first
+                    var enumerator = (await userDictionary.CreateEnumerableAsync(tx)).GetAsyncEnumerator();
 
-                    //if user exist, the object will be returned
-                    return JsonConvert.SerializeObject(customer.Value);
+                    while (await enumerator.MoveNextAsync(CancellationToken.None))
+                    {
+                        var user = enumerator.Current.Value;
+                        clients.Add(JsonConvert.SerializeObject(user));
+                    }
                 }
+
+                return clients[0];
             }
             catch (Exception ex)
             {

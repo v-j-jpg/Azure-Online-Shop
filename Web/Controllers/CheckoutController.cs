@@ -51,7 +51,7 @@ namespace Web.Controllers
                 var listOfProducts = new List<Product>();
                 products.ForEach(x => listOfProducts.Add(JsonConvert.DeserializeObject<Product>(x)!));
 
-                string user = await authProxy.GetUser();
+                string user = await authProxy.GetActiveUser();
 
                 if (user != string.Empty || user != null && products.Count > 0)
                 {
@@ -135,7 +135,7 @@ namespace Web.Controllers
                 var listOfProducts = new List<Product>();
                 products.ForEach(x => listOfProducts.Add(JsonConvert.DeserializeObject<Product>(x)!));
 
-                string user = await authProxy.GetUser();
+                string user = await authProxy.GetActiveUser();
 
                 if (user != string.Empty || user != null && products.Count > 0)
                 {
