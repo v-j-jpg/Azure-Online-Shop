@@ -3,10 +3,10 @@
   <Parameters>
     <Parameter Name="Orders_InstanceCount" DefaultValue="-1" />
     <Parameter Name="Payment_MinReplicaSetSize" DefaultValue="3" />
-    <Parameter Name="Payment_PartitionCount" DefaultValue="1" />
+    <Parameter Name="Payment_PartitionCount" DefaultValue="3" />
     <Parameter Name="Payment_TargetReplicaSetSize" DefaultValue="3" />
     <Parameter Name="Cart_MinReplicaSetSize" DefaultValue="3" />
-    <Parameter Name="Cart_PartitionCount" DefaultValue="1" />
+    <Parameter Name="Cart_PartitionCount" DefaultValue="3" />
     <Parameter Name="Cart_TargetReplicaSetSize" DefaultValue="3" />
     <Parameter Name="Users_MinReplicaSetSize" DefaultValue="3" />
     <Parameter Name="Users_PartitionCount" DefaultValue="3" />
