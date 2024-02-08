@@ -11,33 +11,6 @@
     <button><a asp-action="SignIn" asp-controller="Authentification">Sign In</a></button>
 
     <br/>
-    <section style="background-color: #eee;">
-        <div class="container py-5">
-            <div class="row">
-                <div class="col-md-6 col-lg-7 col-xl-8">
-
-                    <ul class="list-unstyled">
-                        @foreach(var item in Model) {
-                        <li class="d-flex justify-content-between mb-4">
-                            <div class="card">
-                                <div class="card-header d-flex justify-content-between p-3">
-                                    <p class="fw-bold mb-0">Order Notification</p>
-                                    <p class="text-muted small mb-0"><i class="far fa-clock"></i>@DateTime.UtcNow</p>
-                                </div>
-                                <div class="card-body alert-danger">
-                                    <p class="mb-0">
-                                            @item
-                                    </p>
-                                </div>
-                            </div>
-                            </li>
-                        }
-                        
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
 </div>
 @section scripts
     {

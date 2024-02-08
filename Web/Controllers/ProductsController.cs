@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
 using Newtonsoft.Json;
+using System.Fabric;
 
 namespace Web.Controllers
 {
@@ -34,11 +35,21 @@ namespace Web.Controllers
         {
             try
             {
-                ICart proxy = ServiceProxy.Create<ICart>(new Uri("fabric:/Shop/Cart"), new ServicePartitionKey(1));
+                var fabricCartURI = new Uri("fabric:/Shop/Cart");
+
+                FabricClient fabricClient = new FabricClient();
+                var partitionsList = (await fabricClient.QueryManager.GetPartitionListAsync(fabricCartURI));
+                int index = new Random().Next(0, partitionsList.Count);
+
+                ICart cartProxy = null;
+
+                var servicePartitionKey = new ServicePartitionKey(index);
+                cartProxy = ServiceProxy.Create<ICart>(fabricCartURI, servicePartitionKey); // Basket dictionary
+
                 var basket = new List<Product>();
 
 
-                List<string> productsJson = await proxy.GetBasketProducts();
+                List<string> productsJson = await cartProxy.GetBasketProducts();
 
                 productsJson.ForEach(x => basket.Add(JsonConvert.DeserializeObject<Product>(x)!));
                 double totalPrice = 0;
@@ -61,11 +72,21 @@ namespace Web.Controllers
         {
             try
             {
-                ICart proxy = ServiceProxy.Create<ICart>(new Uri("fabric:/Shop/Cart"), new ServicePartitionKey(1));
+                var fabricCartURI = new Uri("fabric:/Shop/Cart");
+
+                FabricClient fabricClient = new FabricClient();
+                var partitionsList = (await fabricClient.QueryManager.GetPartitionListAsync(fabricCartURI));
+                int index = (id != null || id.Equals(string.Empty)) ? id.Count() :new Random().Next(0, partitionsList.Count);
+
+                ICart cartProxy = null;
+
+                var servicePartitionKey = new ServicePartitionKey(index % partitionsList.Count);
+                cartProxy = ServiceProxy.Create<ICart>(fabricCartURI, servicePartitionKey); // Basket dictionary
+
                 var basket = new List<Product>();
 
 
-                await proxy.AddProductToBasketDictionary(id);
+                await cartProxy.AddProductToBasketDictionary(id);
 
                 return RedirectToAction("Cart");
             }
@@ -79,10 +100,20 @@ namespace Web.Controllers
         {
             try
             {
-                ICart proxy = ServiceProxy.Create<ICart>(new Uri("fabric:/Shop/Cart"), new ServicePartitionKey(1));
+                var fabricCartURI = new Uri("fabric:/Shop/Cart");
+
+                FabricClient fabricClient = new FabricClient();
+                var partitionsList = (await fabricClient.QueryManager.GetPartitionListAsync(fabricCartURI));
+                int index = (id != null || id.Equals(string.Empty)) ? id.Count() : new Random().Next(0, partitionsList.Count);
+
+                ICart cartProxy = null;
+
+                var servicePartitionKey = new ServicePartitionKey(index % partitionsList.Count);
+                cartProxy = ServiceProxy.Create<ICart>(fabricCartURI, servicePartitionKey); // Basket dictionary
+
                 var basket = new List<Product>();
 
-                await proxy.DeleteProductFromBasket(id);
+                await cartProxy.DeleteProductFromBasket(id);
 
                 return RedirectToAction("Cart");
             }
@@ -96,9 +127,18 @@ namespace Web.Controllers
         {
             try
             {
-                ICart proxy = ServiceProxy.Create<ICart>(new Uri("fabric:/Shop/Cart"), new ServicePartitionKey(1));
+                var fabricCartURI = new Uri("fabric:/Shop/Cart");
 
-                string product = await proxy.GetBasketProduct(id);
+                FabricClient fabricClient = new FabricClient();
+                var partitionsList = (await fabricClient.QueryManager.GetPartitionListAsync(fabricCartURI));
+                int index = (id != null || id.Equals(string.Empty)) ? id.Count() : new Random().Next(0, partitionsList.Count);
+
+                ICart cartProxy = null;
+
+                var servicePartitionKey = new ServicePartitionKey(index % partitionsList.Count);
+                cartProxy = ServiceProxy.Create<ICart>(fabricCartURI, servicePartitionKey); // Basket dictionary
+
+                string product = await cartProxy.GetBasketProduct(id);
 
                 return View(JsonConvert.DeserializeObject<Product>(product));
             }
@@ -112,8 +152,18 @@ namespace Web.Controllers
             //Update product with Quanity
             try
             {
-                ICart proxy = ServiceProxy.Create<ICart>(new Uri("fabric:/Shop/Cart"), new ServicePartitionKey(1));
-                await proxy.EditProductInBasket(JsonConvert.SerializeObject(product));
+                var fabricCartURI = new Uri("fabric:/Shop/Cart");
+
+                FabricClient fabricClient = new FabricClient();
+                var partitionsList = (await fabricClient.QueryManager.GetPartitionListAsync(fabricCartURI));
+                int index = (product.Id != null || product.Id.Equals(string.Empty)) ? product.Id.Count() : new Random().Next(0, partitionsList.Count);
+
+                ICart cartProxy = null;
+
+                var servicePartitionKey = new ServicePartitionKey(index % partitionsList.Count);
+                cartProxy = ServiceProxy.Create<ICart>(fabricCartURI, servicePartitionKey); // Basket dictionary
+
+                await cartProxy.EditProductInBasket(JsonConvert.SerializeObject(product));
 
                 return RedirectToAction("Cart");
             }

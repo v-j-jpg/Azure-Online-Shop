@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
 using Newtonsoft.Json;
+using System.Fabric;
 using static NuGet.Packaging.PackagingConstants;
 
 namespace Web.Controllers
@@ -15,11 +16,18 @@ namespace Web.Controllers
 
         public async Task<IActionResult> History()
         {
-            IPayment proxy = ServiceProxy.Create<IPayment>(new Uri("fabric:/Shop/Payment"), new ServicePartitionKey(1));
+            var fabricpaymentURI = new Uri("fabric:/Shop/Payment");
+
+            FabricClient fabricClient = new FabricClient();
+            var partitionsList = (await fabricClient.QueryManager.GetPartitionListAsync(fabricpaymentURI));
+            int index = new Random().Next(0, partitionsList.Count);
+
+            IPayment paymentProxy = null;
+            var servicePartitionKey = new ServicePartitionKey(index % partitionsList.Count);
+            paymentProxy = ServiceProxy.Create<IPayment>(fabricpaymentURI, servicePartitionKey); // Payment dictionary
             var orders = new List<Order>();
 
-            List<string> ordersJSON = await proxy.GetOrdersHistory();
-
+            List<string> ordersJSON = await paymentProxy.GetOrdersHistory();
             ordersJSON.ForEach(x => orders.Add(JsonConvert.DeserializeObject<Order>(x)!));
 
 

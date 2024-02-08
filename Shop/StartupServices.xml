@@ -9,7 +9,7 @@
     <Parameter Name="Cart_PartitionCount" DefaultValue="1" />
     <Parameter Name="Cart_TargetReplicaSetSize" DefaultValue="3" />
     <Parameter Name="Users_MinReplicaSetSize" DefaultValue="3" />
-    <Parameter Name="Users_PartitionCount" DefaultValue="1" />
+    <Parameter Name="Users_PartitionCount" DefaultValue="3" />
     <Parameter Name="Users_TargetReplicaSetSize" DefaultValue="3" />
     <Parameter Name="ProductCatalog_InstanceCount" DefaultValue="-1" />
     <Parameter Name="Web_InstanceCount" DefaultValue="-1" />

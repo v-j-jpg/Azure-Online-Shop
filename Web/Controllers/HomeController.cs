@@ -29,20 +29,22 @@ namespace Web.Controllers
             //var Message = await notificationProxy.ReceiveMessage("ordersqueue");
             //ViewData["Notification"] = Message;
 
-            IPayment paymentProxy = ServiceProxy.Create<IPayment>(new Uri("fabric:/Shop/Payment"), new ServicePartitionKey(1)); // save to dictionary
-            List<string> messages = await paymentProxy.GetOrderMessages();
-            List<Message> messagesList = new List<Message>();
+            //IPayment paymentProxy = ServiceProxy.Create<IPayment>(new Uri("fabric:/Shop/Payment"), new ServicePartitionKey(1)); // save to dictionary
+            //List<string> messages = await paymentProxy.GetOrderMessages();
+            //List<Message> messagesList = new List<Message>();
 
-            if(messages.Count > 0)
-            {
-                foreach (var message in messages)
-                {
-                    messagesList.Add(JsonConvert.DeserializeObject<Message>(message));
-                }
-            }
-            return View(messagesList);
+            //if(messages.Count > 0)
+            //{
+            //    foreach (var message in messages)
+            //    {
+            //        messagesList.Add(JsonConvert.DeserializeObject<Message>(message));
+            //    }
+            //}
+            //return View(messagesList);
+
+            return View();
         }
-        
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

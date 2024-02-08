@@ -2,8 +2,10 @@
 using Lib.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.ServiceFabric.Services.Client;
+using Microsoft.ServiceFabric.Services.Communication.Client;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
 using Newtonsoft.Json;
+using System.Fabric;
 
 namespace Web.Controllers
 {
@@ -12,13 +14,26 @@ namespace Web.Controllers
         Random rn= new Random();
         public async Task<IActionResult> Users()
         {
-            var random = rn.Next(1, 5);
-            IAuth proxy = ServiceProxy.Create<IAuth>(new Uri("fabric:/Shop/Users"), new ServicePartitionKey(random));
             var users = new List<User>();
+            List<string> usersJson;
 
-            List<string> usersJson = await proxy.ListClientsFromTheDicitonary();
+            var fabricUserURI = new Uri("fabric:/Shop/Users");
+            FabricClient fabricClient = new FabricClient();
+            var partitionsList= (await fabricClient.QueryManager.GetPartitionListAsync(fabricUserURI));
+            IAuth proxy = null;
+            var random = rn.Next(0, partitionsList.Count);
 
+            var partitionKey = partitionsList[random].PartitionInformation as Int64RangePartitionInformation;
+            
+            var servicePartitionKey = new ServicePartitionKey(random % partitionsList.Count);
+            proxy = ServiceProxy.Create<IAuth>(fabricUserURI, servicePartitionKey);
+
+
+            proxy = ServiceProxy.Create<IAuth>(fabricUserURI, servicePartitionKey);
+            usersJson = await proxy.ListClientsFromTheDicitonary();
             usersJson.ForEach(x => users.Add(JsonConvert.DeserializeObject<User>(x)!));
+
+
 
             return View(users);
         }
@@ -32,8 +47,16 @@ namespace Web.Controllers
 
         public async Task<IActionResult> Register([FromForm]User user)
         {
-            IAuth proxy = ServiceProxy.Create<IAuth>(new Uri("fabric:/Shop/Users"), new ServicePartitionKey(Int32.Parse(user.Id) % 5)); // split to 5 nodes
-            
+            var fabricUserURI = new Uri("fabric:/Shop/Users");
+            FabricClient fabricClient = new FabricClient();
+            var partitionsList = (await fabricClient.QueryManager.GetPartitionListAsync(fabricUserURI));
+            IAuth proxy = null;
+
+            var partitionKey = partitionsList[Int32.Parse(user.Id) % partitionsList.Count].PartitionInformation as Int64RangePartitionInformation;
+
+            var servicePartitionKey = new ServicePartitionKey(Int32.Parse(user.Id) % partitionsList.Count);
+            proxy = ServiceProxy.Create<IAuth>(fabricUserURI, servicePartitionKey);
+
             var convertedUser = JsonConvert.SerializeObject(user);
             var isUserInDatabase = proxy.AddUsersToStorage(convertedUser);
 
@@ -45,14 +68,24 @@ namespace Web.Controllers
 
         public IActionResult SignIn()
         {
-
+            //rturn form
             return View();
         }
         public async Task<IActionResult> SignInAction([FromForm] User user)
         {
             //Compare the email and pass with the database
 
-            IAuth proxy = ServiceProxy.Create<IAuth>(new Uri("fabric:/Shop/Users"), new ServicePartitionKey(1));
+            var fabricUserURI = new Uri("fabric:/Shop/Users");
+            FabricClient fabricClient = new FabricClient();
+            var partitionsList = (await fabricClient.QueryManager.GetPartitionListAsync(fabricUserURI));
+            IAuth proxy = null;
+            var random = rn.Next(0, partitionsList.Count);
+
+            var partitionKey = partitionsList[random].PartitionInformation as Int64RangePartitionInformation;
+
+            var servicePartitionKey = new ServicePartitionKey(random % partitionsList.Count);
+            proxy = ServiceProxy.Create<IAuth>(fabricUserURI, servicePartitionKey);
+
             var userJSON = JsonConvert.SerializeObject(user);
 
             string userInfo = await proxy.CheckUsersCredential(userJSON);
@@ -72,9 +105,17 @@ namespace Web.Controllers
 
         public async Task<IActionResult> Edit(string id)
         {
-            IAuth proxy = ServiceProxy.Create<IAuth>(new Uri("fabric:/Shop/Users"), new ServicePartitionKey(1));
+            var fabricUserURI = new Uri("fabric:/Shop/Users");
+            FabricClient fabricClient = new FabricClient();
+            var partitionsList = (await fabricClient.QueryManager.GetPartitionListAsync(fabricUserURI));
+            IAuth proxy = null;
 
-            if(id != null)
+            var partitionKey = partitionsList[Int32.Parse(id) % partitionsList.Count].PartitionInformation as Int64RangePartitionInformation;
+
+            var servicePartitionKey = new ServicePartitionKey(Int32.Parse(id) % partitionsList.Count);
+            proxy = ServiceProxy.Create<IAuth>(fabricUserURI, servicePartitionKey);
+
+            if (id != null)
             {
                 string user = await proxy.GetUserById(id);
                 
@@ -88,7 +129,15 @@ namespace Web.Controllers
         public async Task<IActionResult> EditAction([FromForm]User user)
         {
             //Edit the user in the database and dictionary
-            IAuth proxy = ServiceProxy.Create<IAuth>(new Uri("fabric:/Shop/Users"), new ServicePartitionKey(1));
+            var fabricUserURI = new Uri("fabric:/Shop/Users");
+            FabricClient fabricClient = new FabricClient();
+            var partitionsList = (await fabricClient.QueryManager.GetPartitionListAsync(fabricUserURI));
+            IAuth proxy = null;
+
+            var partitionKey = partitionsList[Int32.Parse(user.Id) % partitionsList.Count].PartitionInformation as Int64RangePartitionInformation;
+
+            var servicePartitionKey = new ServicePartitionKey(Int32.Parse(user.Id) % partitionsList.Count);
+            proxy = ServiceProxy.Create<IAuth>(fabricUserURI, servicePartitionKey);
 
             var userJSON = JsonConvert.SerializeObject(user);
             await proxy.UpdateUserStorage(userJSON);
@@ -99,9 +148,18 @@ namespace Web.Controllers
 
         public async Task<IActionResult> LogOut()
         {
-            
-            IAuth proxy = ServiceProxy.Create<IAuth>(new Uri("fabric:/Shop/Users"), new ServicePartitionKey(1));
-            
+
+            var fabricUserURI = new Uri("fabric:/Shop/Users");
+            FabricClient fabricClient = new FabricClient();
+            var partitionsList = (await fabricClient.QueryManager.GetPartitionListAsync(fabricUserURI));
+            IAuth proxy = null;
+            var random = rn.Next(0, partitionsList.Count);
+
+            var partitionKey = partitionsList[random].PartitionInformation as Int64RangePartitionInformation;
+
+            var servicePartitionKey = new ServicePartitionKey(random % partitionsList.Count);
+            proxy = ServiceProxy.Create<IAuth>(fabricUserURI, servicePartitionKey);
+
             await proxy.LogOut();
 
             return RedirectToAction("Index", "Home");

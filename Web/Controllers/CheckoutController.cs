@@ -5,6 +5,7 @@ using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Fabric;
 using System.Net;
 using System.Text;
 
@@ -24,10 +25,25 @@ namespace Web.Controllers
 
             try
             {
-                IPayment paymentProxy = ServiceProxy.Create<IPayment>(new Uri("fabric:/Shop/Payment"), new ServicePartitionKey(1)); // save to dictionary
+                var fabricpaymentURI = new Uri("fabric:/Shop/Payment");
+                var fabricAuthURI = new Uri("fabric:/Shop/Users");
+                var fabricCartURI = new Uri("fabric:/Shop/Cart");
+
+                FabricClient fabricClient = new FabricClient();
+                var partitionsList = (await fabricClient.QueryManager.GetPartitionListAsync(fabricpaymentURI));
+                int index = new Random().Next(0, partitionsList.Count);
+
+                IPayment paymentProxy = null;
+                IAuth authProxy = null;
+                ICart cartProxy = null;
+
+                var servicePartitionKey = new ServicePartitionKey(index % partitionsList.Count);
+                paymentProxy = ServiceProxy.Create<IPayment>(fabricpaymentURI, servicePartitionKey); // Payment dictionary
+                authProxy = ServiceProxy.Create<IAuth>(fabricAuthURI, new ServicePartitionKey(index % partitionsList.Count)); //User dictionary
+                cartProxy = ServiceProxy.Create<ICart>(fabricCartURI, new ServicePartitionKey(index % partitionsList.Count)); // Basket dictionary
+
+                //Stateless
                 IOrder orderProxy = ServiceProxy.Create<IOrder>(new Uri("fabric:/Shop/Orders")); //save to storage
-                IAuth authProxy = ServiceProxy.Create<IAuth>(new Uri("fabric:/Shop/Users"), new ServicePartitionKey(1)); //User dictionary
-                ICart cartProxy = ServiceProxy.Create<ICart>(new Uri("fabric:/Shop/Cart"), new ServicePartitionKey(1)); // Basket dictionary
                 ICatalog catalogProxy = ServiceProxy.Create<ICatalog>(new Uri("fabric:/Shop/ProductCatalog"));
 
 
@@ -89,13 +105,29 @@ namespace Web.Controllers
             // Save the order to database
             //Redirect to Home Page and send a notificaiton
             INotification notificationProxy = ServiceProxy.Create<INotification>(new Uri("fabric:/Shop/Notifications")); // Notification API
+            ;
 
             try
             {
-                IPayment paymentProxy = ServiceProxy.Create<IPayment>(new Uri("fabric:/Shop/Payment"), new ServicePartitionKey(1)); // save to dictionary
+                var fabricpaymentURI = new Uri("fabric:/Shop/Payment");
+                var fabricAuthURI = new Uri("fabric:/Shop/Users");
+                var fabricCartURI = new Uri("fabric:/Shop/Cart");
+
+                FabricClient fabricClient = new FabricClient();
+                var partitionsList = (await fabricClient.QueryManager.GetPartitionListAsync(fabricpaymentURI));
+                int index = !address.Equals("") ? address.Count() : new Random().Next(0, partitionsList.Count);
+
+                IPayment paymentProxy = null;
+                IAuth authProxy = null;
+                ICart cartProxy = null;
+
+                var servicePartitionKey = new ServicePartitionKey(index % partitionsList.Count);
+                paymentProxy = ServiceProxy.Create<IPayment>(fabricpaymentURI, servicePartitionKey); // Payment dictionary
+                authProxy = ServiceProxy.Create<IAuth>(fabricAuthURI, new ServicePartitionKey(index % partitionsList.Count)); //User dictionary
+                cartProxy = ServiceProxy.Create<ICart>(fabricCartURI, new ServicePartitionKey(index % partitionsList.Count)); // Basket dictionary
+
+                //Stateless
                 IOrder orderProxy = ServiceProxy.Create<IOrder>(new Uri("fabric:/Shop/Orders")); //save to storage
-                IAuth authProxy = ServiceProxy.Create<IAuth>(new Uri("fabric:/Shop/Users"), new ServicePartitionKey(1)); //User dictionary
-                ICart cartProxy = ServiceProxy.Create<ICart>(new Uri("fabric:/Shop/Cart"), new ServicePartitionKey(1)); // Basket dictionary
                 ICatalog catalogProxy = ServiceProxy.Create<ICatalog>(new Uri("fabric:/Shop/ProductCatalog"));
 
 

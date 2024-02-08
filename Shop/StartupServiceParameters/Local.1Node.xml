@@ -5,9 +5,6 @@
     <Parameter Name="Payment_PartitionCount" Value="1" />
     <Parameter Name="Payment_MinReplicaSetSize" Value="1" />
     <Parameter Name="Payment_TargetReplicaSetSize" Value="1" />
-    <Parameter Name="Cart_PartitionCount" Value="1" />
-    <Parameter Name="Cart_MinReplicaSetSize" Value="1" />
-    <Parameter Name="Cart_TargetReplicaSetSize" Value="1" />
     <Parameter Name="Users_PartitionCount" Value="1" />
     <Parameter Name="Users_MinReplicaSetSize" Value="1" />
     <Parameter Name="Users_TargetReplicaSetSize" Value="1" />
